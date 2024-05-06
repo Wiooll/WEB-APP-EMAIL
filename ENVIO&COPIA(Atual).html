@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-MAIL DE AUSÊNCIA DE DOCENTE</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: url("https://cdn.jsdelivr.net/npm/outline-icons@0.25.0/icons/chevron-down.svg") no-repeat right;
+            background-position-x: 95%;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            display: inline-block;
+            margin-top: 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CRIE AQUI O E-MAIL DE AUSÊNCIA DE DOCENTE</h1>
+        <form id="emailForm">
+            <div>
+                <label for="professorName">Nome do Professor(a):</label>
+                <input type="text" id="professorName" required>
+            </div>
+            <div>
+                <label for="classDate">Data da Aula:</label>
+                <input type="date" id="classDate" required>
+            </div>
+            <div>
+                <label for="className">Turma:</label>
+                <input type="text" id="className" required>
+            </div>
+
+            <div>
+                <label for="subject">Disciplina:</label>
+                <input type="text" id="subject" required>
+            </div>
+            <div>
+                <label for="shift">Turno:</label>
+                <select id="shift" required>
+                    <option value="Manhã">Manhã</option>
+                    <option value="Tarde">Tarde</option>
+                    <option value="Noite">Noite</option>
+                </select>
+            </div>
+            <div>
+                <label for="absenceReason">Motivo da Ausência:</label>
+                <input type="radio" name="absenceReason" value="motivo de saúde" required> Motivo de saúde.
+                <input type="radio" name="absenceReason" value="motivos pessoais"> Motivos pessoais.
+            </div>
+            <button type="button" onclick="createEmail()">Criar E-mail</button>
+            <button onclick="copyEmailsToCC()">Copiar E-mails CCO</button>
+        </form>
+        <h2>E-mail:</h2>
+        <textarea id="emailContent" readonly></textarea>
+        <button onclick="copyEmailToClipboard()">Copiar E-mail</button>
+
+        <h2>Importar E-mails do Excel</h2>
+        <input type="file" id="fileInput" accept=".xls,.xlsx">
+        <div id="emailsList" style="height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 5px;"></div>
+        <div id="statusLabel"></div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <script>
+        function createEmail() {
+            const professorName = document.getElementById("professorName").value;
+            const classDate = document.getElementById("classDate").value;
+            const className = document.getElementById("className").value;
+            const subject = document.getElementById("subject").value;
+            const shift = document.getElementById("shift").value;
+
+            const absenceReasonElements = document.getElementsByName("absenceReason");
+            let selectedAbsenceReason = "";
+
+            for (const element of absenceReasonElements) {
+                if (element.checked) {
+                    selectedAbsenceReason = element.value;
+                    break;
+                }
+            }
+
+            const dateParts = classDate.split("-");
+            const formattedDate = dateParts[2] + "/" + dateParts[1] + "/" + dateParts[0];
+
+            const emailContent = `Ausência de Docente ${formattedDate}
+
+Prezado(a) Aluno(a),
+
+Informo que o(a) Professor(a) ${professorName} não comparecerá na aula do dia: ${formattedDate} Turma: ${className} Disciplina: ${subject} Turno: ${shift} por ${selectedAbsenceReason}.
+
+* E-mail coletivo enviado aos alunos matriculados na turma.
+Não há necessidade de resposta.`;
+
+            document.getElementById("emailContent").value = emailContent;
+        }
+
+        function copyEmailToClipboard() {
+            const emailContent = document.getElementById("emailContent");
+            emailContent.select();
+            document.execCommand("copy");
+            alert("E-mail copiado para a área de transferência!");
+        }
+
+        function copyEmailsToCC() {
+            const ccEmails = [
+                "andre.salvaterra@unisuam.edu.br",
+                "mcampos@unisuam.edu.br",
+                "luciano.santos@unisuam.edu.br",
+                "pedro.pereira@unisuam.edu.br",
+                "inspetoria@unisuam.edu.br",
+                "ouvidoria@unisuam.edu.br"
+            ];
+
+            const ccEmailsString = ccEmails.join(", ");
+            navigator.clipboard.writeText(ccEmailsString)
+                .then(() => {
+                    alert("E-mails em CCO copiados para a área de transferência!");
+                })
+                .catch(err => {
+                    console.error('Failed to copy: ', err);
+                    alert("Erro ao copiar os e-mails em CCo. Por favor, copie manualmente.");
+                });
+        }
+
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            var file = event.target.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var data = new Uint8Array(e.target.result);
+                    var workbook = XLSX.read(data, { type: 'array' });
+                    if (workbook) {
+                        var sheetName = workbook.SheetNames[0];
+                        var worksheet = workbook.Sheets[sheetName];
+                        var emails = [];
+                        var linha = 4; // Inicia a leitura a partir da linha 5
+                        while (worksheet['F' + (linha + 1)]) {
+                            var email = worksheet['F' + (linha + 1)].v;
+                            if (email) {
+                                emails.push(email);
+                                linha++; // Move para a próxima linha
+                            } else {
+                                break; // Sai do loop se encontrar uma célula vazia
+                            }
+                        }
+                        if (emails.length > 0) {
+                            document.getElementById('emailsList').innerHTML = emails.join('<br>');
+                            navigator.clipboard.writeText(emails.join('\n')).then(function() {
+                                document.getElementById('statusLabel').innerText = "E-mails copiados para a área de transferência.";
+                                document.getElementById('statusLabel').style.color = "green";
+                            });
+                        } else {
+                            document.getElementById('statusLabel').innerText = "Não foram encontrados e-mails na coluna F a partir da linha 9.";
+                            document.getElementById('statusLabel').style.color = "red";
+                        }
+                    } else {
+                        document.getElementById('statusLabel').innerText = "Erro ao ler arquivo Excel.";
+                        document.getElementById('statusLabel').style.color = "red";
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        });
+    </script>
+</body>
+</html>
