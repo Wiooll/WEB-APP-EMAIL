@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-MAIL DE AUSÊNCIA DE DOCENTE</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Estilos opcionais para deixar o menu mais bonito */
+        nav {
+          background-color: #333;
+          padding: 10px;
+        }
+
+        nav ul {
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+        }
+
+        nav ul li {
+          display: inline;
+        }
+
+        nav ul li a {
+          color: white;
+          text-decoration: none;
+          padding: 10px;
+        }
+
+        nav ul li a:hover {
+          background-color: #555;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="ALPHA.html">Página Inicial</a></li>
+            <li><a href="COPIA.html">Importar XLS</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <h1>CRIE AQUI O E-MAIL DE AUSÊNCIA DE DOCENTE</h1>
+        <form id="emailForm">
+            <div>
+                <label for="professorName">Nome do Professor(a):</label>
+                <input type="text" id="professorName" required>
+            </div>
+            <div>
+                <label for="classDate">Data da Aula:</label>
+                <input type="date" id="classDate" required>
+            </div>
+            <div>
+                <label for="className">Turma:</label>
+                <input type="text" id="className" required>
+            </div>
+            <div>
+                <label for="subject">Disciplina:</label>
+                <input type="text" id="subject" required>
+            </div>
+            <div>
+                <label for="shift">Turno:</label>
+                <select id="shift" required>
+                    <option value="Manhã">Manhã</option>
+                    <option value="Tarde">Tarde</option>
+                    <option value="Noite">Noite</option>
+                </select>
+            </div>
+            <div>
+                <label for="absenceReason">Motivo da Ausência:</label>
+                <input type="radio" name="absenceReason" value="motivo de saúde" required> Motivo de saúde.
+                <input type="radio" name="absenceReason" value="motivos pessoais"> Motivos pessoais.
+            </div>
+        </form>
+        <h2>E-mail:</h2>
+        <textarea id="emailContent" readonly></textarea>
+        <button type="button" onclick="createEmail()">Criar E-mail</button>
+        <button onclick="copyEmailToClipboard()">Copiar E-mail</button>
+        <button onclick="copyEmailsToCC()">Copiar E-mails CCO</button>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copiar E-mails</title>
+    <!-- Inclua a biblioteca SheetJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+	<link rel="stylesheet" href="styles.css">
+    <style>
+        /* Estilos opcionais para deixar o menu mais bonito */
+        nav {
+          background-color: #333;
+          padding: 10px;
+        }
+
+        nav ul {
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+        }
+
+        nav ul li {
+          display: inline;
+        }
+
+        nav ul li a {
+          color: white;
+          text-decoration: none;
+          padding: 10px;
+        }
+
+        nav ul li a:hover {
+          background-color: #555;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="ALPHA.html">Página Inicial</a></li>            
+        </ul>
+    </nav>
+</head>
+<pre>
+    ABRA O ARQUIVO .XLS
+</pre>
+
+<body>
+    <input type="file" id="fileInput" accept=".xls,.xlsx">
+    <div id="emailsList" style="height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 5px;"></div>
+    <div id="statusLabel"></div>
+    <div id="output"></div>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            var file = event.target.files[0];
+            if (file) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var data = new Uint8Array(e.target.result);
+                    var workbook = XLSX.read(data, { type: 'array' });
+                    if (workbook) {
+                        var sheetName = workbook.SheetNames[0];
+                        var worksheet = workbook.Sheets[sheetName];
+                        var emails = [];
+                        var linha = 4; // Inicia a leitura a partir da linha 5
+                        var celulaAtualEstaVazia = false;
+                        while (worksheet['F' + (linha + 1)]) {
+                            var email = worksheet['F' + (linha + 1)].v;
+                            if (email) {
+                                emails.push(email);
+                                celulaAtualEstaVazia = false;
+                            } else {
+                                // Verifica se a próxima célula também está vazia
+                                if (worksheet['F' + (linha + 2)] && !celulaAtualEstaVazia) {
+                                    celulaAtualEstaVazia = true;
+                                } else {
+                                    break; // Sai do loop se encontrar duas células vazias consecutivas
+                                }
+                            }
+                            linha++; // Move para a próxima linha
+                        }
+                        if (emails.length > 0) {
+                            document.getElementById('emailsList').innerHTML = emails.join('<br>');
+                            navigator.clipboard.writeText(emails.join('\n')).then(function() {
+                                document.getElementById('statusLabel').innerText = "E-mails copiados para a área de transferência.";
+                                document.getElementById('statusLabel').style.color = "green";
+                            });
+                        } else {
+                            document.getElementById('statusLabel').innerText = "Não foram encontrados e-mails na coluna F a partir da linha 9.";
+                            document.getElementById('statusLabel').style.color = "red";
+                        }
+                    } else {
+                        document.getElementById('statusLabel').innerText = "Erro ao ler arquivo Excel.";
+                        document.getElementById('statusLabel').style.color = "red";
+                    }
+
+                    // Exibindo a planilha também
+                    var html = XLSX.utils.sheet_to_html(worksheet); // Converta a planilha para HTML
+                    document.getElementById('output').innerHTML = html; // Exiba o HTML na div de saída
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        });
+
+        // Função para copiar uma coluna específica para a área de transferência
+        function copyColumn(columnIndex) {
+            var table = document.getElementById('output').getElementsByTagName('table')[0];
+            var rows = table.rows;
+            var columnValues = [];
+            for (var i = 0; i < rows.length; i++) {
+                var cell = rows[i].cells[columnIndex];
+                if (cell) {
+                    columnValues.push(cell.textContent.trim());
+                } else {
+                    columnValues.push('');
+                }
+            }
+            var textToCopy = columnValues.join('\n');
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => {
+                    console.log('Coluna copiada com sucesso!');
+                    alert('Coluna copiada com sucesso!');
+                })
+                .catch(err => {
+                    console.error('Erro ao copiar a coluna:', err);
+                });
+        }
+    </script>
+</body>
+</html>
