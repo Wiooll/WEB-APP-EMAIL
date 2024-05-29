@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leitura de Arquivo XLS</title>
+    <!-- Inclua a biblioteca SheetJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+</head>
+<body>
+    <input type="file" id="fileInput" />
+    <div id="output"></div>
+
+    <script>
+        // Função para lidar com a mudança no input de arquivo
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            var file = e.target.files[0]; // Obtenha o arquivo selecionado
+
+            var reader = new FileReader(); // Crie um FileReader para ler o arquivo
+
+            reader.onload = function(e) {
+                var data = new Uint8Array(e.target.result); // Obtenha os dados do arquivo
+                var workbook = XLSX.read(data, { type: 'array' }); // Leia o arquivo usando SheetJS
+
+                var sheetName = workbook.SheetNames[0]; // Obtenha o nome da primeira planilha
+                var sheet = workbook.Sheets[sheetName]; // Obtenha a primeira planilha
+
+                var html = XLSX.utils.sheet_to_html(sheet); // Converta a planilha para HTML
+
+                document.getElementById('output').innerHTML = html; // Exiba o HTML na div de saída
+
+                // Adicione botões para copiar cada coluna individualmente
+                var columnHeaders = sheet['!range'].e.c + 1; // Obtenha o número de colunas
+                var buttonsDiv = document.createElement('div');
+                buttonsDiv.setAttribute('id', 'copyButtons');
+                document.body.appendChild(buttonsDiv);
+                for (var i = 0; i < columnHeaders; i++) {
+                    var button = document.createElement('button');
+                    button.textContent = 'Copiar Coluna ' + String.fromCharCode(65 + i); // Converta para letras do alfabeto (A, B, C...)
+                    button.addEventListener('click', function(index) {
+                        return function() {
+                            copyColumn(index);
+                        };
+                    }(i));
+                    buttonsDiv.appendChild(button);
+                }
+            };
+
+            reader.readAsArrayBuffer(file); // Leia o arquivo como um array de bytes
+        });
+
+        // Função para copiar uma coluna específica para a área de transferência
+        function copyColumn(columnIndex) {
+            var table = document.getElementById('output').getElementsByTagName('table')[0];
+            var rows = table.rows;
+            var columnValues = [];
+            for (var i = 0; i < rows.length; i++) {
+                var cell = rows[i].cells[columnIndex];
+                if (cell) {
+                    columnValues.push(cell.textContent.trim());
+                } else {
+                    columnValues.push('');
+                }
+            }
+            var textToCopy = columnValues.join('\n');
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => {
+                    console.log('Coluna copiada com sucesso!');
+                    alert('Coluna copiada com sucesso!');
+                })
+                .catch(err => {
+                    console.error('Erro ao copiar a coluna:', err);
+                });
+        }
+    </script>
+</body>
+</html>
