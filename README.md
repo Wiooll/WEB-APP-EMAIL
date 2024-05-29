@@ -15,6 +15,3 @@ O projeto consiste em um único arquivo HTML com estilos embutidos e um arquivo 
 index.html: Contém a estrutura HTML da aplicação.
 styles.css: Arquivo CSS para estilos adicionais.
 script.js: Arquivo JavaScript que contém a lógica para gerar e copiar o e-mail.
-
-## Licença
-Este projeto está licenciado sob a MIT License. Veja o arquivo LICENSE para mais detalhes.
